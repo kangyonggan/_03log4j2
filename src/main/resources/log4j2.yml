@@ -1,0 +1,64 @@
+Configuration:
+  status: warn
+  monitorInterval: 300
+
+  properties:
+    property:
+      - name: pattern
+        value: "[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%logger{36}.%t:%L] - %msg%n"
+      - name: path
+        value: /Users/kyg/logs/_03log4j2
+
+  Appenders:
+    Console:
+      name: STDOUT
+      PatternLayout:
+        pattern: ${pattern}
+
+    RollingFile:
+      - name: AllFile
+        fileName: ${path}/all.log
+        filePattern: "${path}/archive/$${date:yyyy-MM}/all-%d{yyyy-MM-dd}-%i.log.gz"
+        PatternLayout:
+          pattern: ${pattern}
+        Filters:
+          ThresholdFilter:
+            - level: fatal
+              onMatch: DENY
+              onMismatch: NEUTRAL
+            - level: debug
+              onMatch: ACCEPT
+              onMismatch: DENY
+        Policies:
+          TimeBasedTriggeringPolicy:
+            interval: 1
+          SizeBasedTriggeringPolicy:
+            size: "500 MB"
+
+      - name: ErrorFile
+        fileName: ${path}/error.log
+        filePattern: "${path}/archive/$${date:yyyy-MM}/error-%d{yyyy-MM-dd}-%i.log.gz"
+        PatternLayout:
+          pattern: ${pattern}
+        Filters:
+          ThresholdFilter:
+            - level: fatal
+              onMatch: DENY
+              onMismatch: NEUTRAL
+            - level: error
+              onMatch: ACCEPT
+              onMismatch: DENY
+        Policies:
+          TimeBasedTriggeringPolicy:
+            interval: 1
+          SizeBasedTriggeringPolicy:
+            size: "500 MB"
+
+  Loggers:
+    Root:
+      level: info
+      additivity: true
+      AppenderRef:
+        - ref: STDOUT
+        - ref: AllFile
+        - ref: ErrorFile
